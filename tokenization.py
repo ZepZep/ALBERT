@@ -96,6 +96,7 @@ def preprocess_text(inputs, remove_space=True, lower=False):
       outputs = six.ensure_text(outputs, "latin-1")
 
   outputs = unicodedata.normalize("NFKD", outputs)
+  # -csa- commented in old version
   outputs = "".join([c for c in outputs if not unicodedata.combining(c)])
   if lower:
     outputs = outputs.lower()
@@ -281,7 +282,7 @@ class FullTokenizer(object):
 
   def convert_tokens_to_ids(self, tokens):
     if self.sp_model:
-      tf.logging.info("using sentence piece tokenzier.")
+      # -csa- tf.logging.info("using sentence piece tokenzier.")
       return [self.sp_model.PieceToId(
           printable_text(token)) for token in tokens]
     else:
@@ -324,7 +325,7 @@ class BasicTokenizer(object):
     for token in orig_tokens:
       if self.do_lower_case:
         token = token.lower()
-        token = self._run_strip_accents(token)
+        # -csa- token = self._run_strip_accents(token)
       split_tokens.extend(self._run_split_on_punc(token))
 
     output_tokens = whitespace_tokenize(" ".join(split_tokens))

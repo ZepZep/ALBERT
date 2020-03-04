@@ -247,6 +247,8 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
         if tokens:
           all_documents[-1].append(tokens)
 
+  tf.logging.info("Done reading")
+
   # Remove empty documents
   all_documents = [x for x in all_documents if x]
   rng.shuffle(all_documents)
@@ -255,12 +257,14 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
   instances = []
   for _ in range(dupe_factor):
     for document_index in range(len(all_documents)):
+      tf.logging.info("Document %5d/%d", document_index+1, len(all_documents))
       instances.extend(
           create_instances_from_document(
               all_documents, document_index, max_seq_length, short_seq_prob,
               masked_lm_prob, max_predictions_per_seq, vocab_words, rng))
 
   rng.shuffle(instances)
+  tf.logging.info("Done instances")
   return instances
 
 

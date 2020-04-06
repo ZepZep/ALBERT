@@ -138,9 +138,9 @@ def model_fn_builder(albert_config, init_checkpoint, learning_rate,
   def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
     """The `model_fn` for TPUEstimator."""
 
-    tf.logging.info("*** Features ***")
-    for name in sorted(features.keys()):
-      tf.logging.info("  name = %s, shape = %s" % (name, features[name].shape))
+    #tf.logging.info("*** Features ***")
+    #for name in sorted(features.keys()):
+      #tf.logging.info("  name = %s, shape = %s" % (name, features[name].shape))
 
     input_ids = features["input_ids"]
     input_mask = features["input_mask"]
@@ -208,13 +208,13 @@ def model_fn_builder(albert_config, init_checkpoint, learning_rate,
           tf.logging.info(assignment_map[gid])
           tf.train.init_from_checkpoint(init_checkpoint, assignment_map[gid])
 
-    tf.logging.info("**** Trainable Variables ****")
+    #tf.logging.info("**** Trainable Variables ****")
     for var in tvars:
       init_string = ""
       if var.name in initialized_variable_names:
         init_string = ", *INIT_FROM_CKPT*"
-      tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape,
-                      init_string)
+      #tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape,
+                      #init_string)
 
     output_spec = None
     if mode == tf.estimator.ModeKeys.TRAIN:
@@ -446,7 +446,7 @@ def input_fn_builder(input_files,
             batch_size=batch_size,
             num_parallel_batches=num_cpu_threads,
             drop_remainder=True))
-    tf.logging.info(d)
+    #tf.logging.info(d)
     return d
 
   return input_fn
@@ -546,11 +546,18 @@ def main(_):
         is_training=False)
     best_perf = 0
     key_name = "masked_lm_accuracy"
+    
+    lc = None
     while global_step < FLAGS.num_train_steps:
       if estimator.latest_checkpoint() is None:
         tf.logging.info("No checkpoint found yet. Sleeping.")
         time.sleep(1)
       else:
+        if lc == estimator.latest_checkpoint():
+          time.sleep(5)
+          continue
+        lc = estimator.latest_checkpoint()
+
         result = estimator.evaluate(
             input_fn=eval_input_fn, steps=FLAGS.max_eval_steps)
         global_step = result["global_step"]
